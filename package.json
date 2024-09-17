@@ -1,0 +1,29 @@
+{
+  "name": "w3pay-backend",
+  "version": "1.0.0",
+  "description": "W3Pay backend service",
+  "main": "src/server.ts",
+  "scripts": {
+    "start": "PROGRAM_ID=your_actual_program_id_here ts-node src/server.ts",
+    "dev": "nodemon --exec ts-node src/server.ts",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@project-serum/anchor": "^0.26.0",
+    "@solana/web3.js": "^1.73.0",
+    "@types/mongodb": "^4.0.6",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^6.9.0",
+    "mongoose": "^6.9.0",
+    "winston": "^3.14.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^18.11.18",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  }
+}
