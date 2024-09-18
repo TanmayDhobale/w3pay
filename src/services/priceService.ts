@@ -1,38 +1,43 @@
-import  SaleStage from '../models/SaleStage';
-import { SaleInstance } from '../models/SaleInstance'; 
+import Decimal from 'decimal.js';
+import SaleStage from '../models/SaleStage';
+import { SaleInstance } from '../models/SaleInstance';
+
+enum PriceStrategyType {
+  Static = 'Static',
+  TimeBased = 'TimeBased'
+}
 
 interface PriceStrategy {
-  type: 'Static' | 'TimeBased';
+  type: PriceStrategyType;
   basePrice?: number;
   priceIncrease?: number;
   timeBetweenIncrease?: number;
 }
 
-export async function calculateTokenPrice(tokenAmount: number): Promise<number> {
+export async function calculateTokenPrice(tokenAmount: number): Promise<string> {
   const activeStage = await getActiveStage();
   if (!activeStage) {
     throw new Error('No active sale stage found');
   }
 
-  const saleInstance = await SaleInstance.findOne(); // Assuming there's only one active sale instance
+  const saleInstance = await SaleInstance.findOne();
   if (!saleInstance) {
     throw new Error('No active sale instance found');
   }
 
-  let pricePerToken: number;
+  let pricePerToken: Decimal;
 
-  if (activeStage.priceStrategy.type === 'Static') {
-    pricePerToken = saleInstance.microcent_per_allocation / 1000000;
-  } else if (activeStage.priceStrategy.type === 'TimeBased') {
+  if (activeStage.priceStrategy.type === PriceStrategyType.Static) {
+    pricePerToken = new Decimal(saleInstance.microcent_per_allocation).dividedBy(1000000);
+  } else if (activeStage.priceStrategy.type === PriceStrategyType.TimeBased) {
     pricePerToken = calculateTimeBasedPrice(activeStage.start, activeStage.priceStrategy, saleInstance);
   } else {
     throw new Error('Unknown price strategy');
   }
 
-  // Calculate total price in dollars
-  const totalPrice = pricePerToken * tokenAmount;
+  const totalPrice = pricePerToken.times(tokenAmount);
 
-  return Number(totalPrice.toFixed(6)); // Round to 6 decimal places
+  return totalPrice.toFixed(6); 
 }
 
 async function getActiveStage(): Promise<any> {
@@ -43,13 +48,13 @@ async function getActiveStage(): Promise<any> {
   }).sort({ start: -1 });
 }
 
-function calculateTimeBasedPrice(stageStart: number, priceStrategy: PriceStrategy, saleInstance: any): number {
-  const basePrice = saleInstance.microcent_per_allocation / 1000000; // Convert to dollars
-  const priceIncrease = saleInstance.microcent_price_step / 1000000; // Convert to dollars
-  const timeBetweenIncrease = saleInstance.hours_per_increase * 60 * 60 * 1000; // convert hours to milliseconds
+function calculateTimeBasedPrice(stageStart: number, priceStrategy: PriceStrategy, saleInstance: any): Decimal {
+  const basePrice = new Decimal(saleInstance.microcent_per_allocation).dividedBy(1000000);
+  const priceIncrease = new Decimal(saleInstance.microcent_price_step).dividedBy(1000000);
+  const timeBetweenIncrease = saleInstance.hours_per_increase * 60 * 60 * 1000;
 
   const elapsedTime = Date.now() - stageStart;
   const increaseCount = Math.floor(elapsedTime / timeBetweenIncrease);
 
-  return basePrice + (priceIncrease * increaseCount);
+  return basePrice.plus(priceIncrease.times(increaseCount));
 }
