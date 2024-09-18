@@ -7,14 +7,14 @@ import { connectToDatabase } from './config/database';
 import { errorHandler } from './utils/errorHandler';
 import logger from './utils/logger';
 import { startSyncService } from './services/syncService';
-// import { initializeSolanaProgram } from './services/solanaService';
+import { initializeSolanaProgram } from './services/solanaService';
 import TestModel from './models/TestModel';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 connectToDatabase();
-// initializeSolanaProgram();
+initializeSolanaProgram();
 
 app.use(express.json());
 app.use('/api', routes);
@@ -33,6 +33,11 @@ app.get('/test-db', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Database operation failed' });
   }
+});
+
+// Add this health check route
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
 app.listen(PORT, () => {

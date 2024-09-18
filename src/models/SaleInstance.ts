@@ -1,4 +1,4 @@
-// Mock database
+
 const mockDatabase: SaleInstance = {
   microcent_per_allocation: 1000000, // 10 cents
   microcent_price_step: 100000, // 1 cent

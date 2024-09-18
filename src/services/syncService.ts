@@ -22,7 +22,6 @@ export async function startSyncService() {
 async function syncTransactions(program: Program) {
   const tickets = await program.account.ticket.all();
   for (const ticket of tickets) {
-    // Convert ticket data to Transaction model and upsert
     await Transaction.findOneAndUpdate(
       { transactionId: ticket.publicKey.toString() },
       {
@@ -30,7 +29,6 @@ async function syncTransactions(program: Program) {
         recipientAddress: ticket.account.saleInstance.toString(),
         timestamp: ticket.account.lastUpdated.toNumber(),
         tokenAmount: ticket.account.unspent.toNumber() + ticket.account.spent.toNumber(),
-        // more fields here 
         lastUpdated: new Date()
       },
       { upsert: true, new: true }

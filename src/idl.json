@@ -10,8 +10,13 @@
                     "isMut": true,
                     "isSigner": false
                 }
-            ]
+            ],
+            "args": []
         }
-        
-    ]
-  }
+    ],
+    "accounts": [],
+    "errors": [],
+    "metadata": {
+        "address": "YOUR_PROGRAM_ID_HERE"
+    }
+}
