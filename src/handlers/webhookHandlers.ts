@@ -1,5 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { Cache } from '../utils/cache';
+import { calculateTokenPrice } from '../services/priceService';
 
 const mongoClient = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
 const db = mongoClient.db('your_database_name');
@@ -23,16 +24,26 @@ async function getFromCacheOrUpdate(key: string, updateFn: () => Promise<any>) {
 }
 
 export async function handleTransactionCreated(data: any) {
-  const { id, amount, userId } = data;
-  const transaction = await db.collection('transactions').insertOne({
-    _id: new ObjectId(id),
-    amount,
-    userId,
-    createdAt: new Date()
-  });
-  const insertedTransaction = await db.collection('transactions').findOne({ _id: transaction.insertedId });
-  await updateCache(`transaction:${id}`, insertedTransaction);
-  console.log('Transaction created:', id);
+  const { id, tokenAmount, userId } = data;
+  
+  try {
+    const usdAmount = await calculateTokenPrice(tokenAmount);
+    
+    const transaction = await db.collection('transactions').insertOne({
+      _id: new ObjectId(id),
+      tokenAmount,
+      usdAmount,
+      userId,
+      createdAt: new Date()
+    });
+    
+    const insertedTransaction = await db.collection('transactions').findOne({ _id: transaction.insertedId });
+    await updateCache(`transaction:${id}`, insertedTransaction);
+    console.log('Transaction created:', id);
+  } catch (error) {
+    console.error('Error creating transaction:', error);
+    // Handle the error appropriately (e.g., retry logic, alert system, etc.)
+  }
 }
 
 export async function handleContributorUpdated(data: any) {
@@ -64,7 +75,6 @@ export async function handleSaleStageChanged(data: any) {
     console.log('Sale not found:', saleId);
   }
 }
-
 
 export async function getTransaction(id: string) {
   return getFromCacheOrUpdate(`transaction:${id}`, async () => {
