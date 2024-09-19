@@ -23,7 +23,6 @@ app.use(errorHandler);
 
 startSyncService().catch(logger.error);
 
-// Test route for database operations
 app.get('/test-db', async (req, res) => {
   try {
     const newTest = new TestModel({ name: 'Test Entry' });
@@ -35,7 +34,6 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
-// Add this health check route
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
