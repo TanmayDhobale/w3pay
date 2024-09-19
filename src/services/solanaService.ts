@@ -1,5 +1,5 @@
-import { Connection, PublicKey, Keypair, Transaction, sendAndConfirmTransaction } from '@solana/web3.js';
-import { Program, AnchorProvider, BN, Wallet } from '@project-serum/anchor';
+import { Connection, PublicKey, Transaction, Keypair } from '@solana/web3.js';
+import { Program, AnchorProvider, BN, web3 as anchorWeb3, Wallet } from '@project-serum/anchor';
 import idl from '../idl.json';
 
 let program: Program;
@@ -21,7 +21,7 @@ export function getProgram(): Program {
 
 export async function buyTicket(buyer: PublicKey, amount: number, authority: PublicKey, benefactor: PublicKey) {
   const program = getProgram();
-  const ticket = Keypair.generate();
+  const ticket = anchorWeb3.Keypair.generate();
   const aggregator = new PublicKey(process.env.AGGREGATOR_ADDRESS as string);
 
   try {
@@ -36,12 +36,20 @@ export async function buyTicket(buyer: PublicKey, amount: number, authority: Pub
       })
       .instruction();
 
-    const transaction = new Transaction().add(instruction);
-    
+    const { blockhash, lastValidBlockHeight } = await program.provider.connection.getLatestBlockhash('confirmed');
 
-    return { transaction, ticket: ticket.publicKey };
+    const tx = new Transaction({
+      feePayer: buyer,
+      blockhash,
+      lastValidBlockHeight,
+    })
+      .add(anchorWeb3.ComputeBudgetProgram.setComputeUnitLimit({ units: 65_000 }))
+      .add(anchorWeb3.ComputeBudgetProgram.setComputeUnitPrice({ microLamports: 100 }))
+      .add(instruction);
+
+    return { transaction: tx, ticket: ticket.publicKey };
   } catch (error) {
-    console.error('Error creating buy ticket instruction:', error);
-    throw new Error('Failed to create buy ticket instruction');
+    console.error('Error creating buy ticket transaction:', error);
+    throw new Error('Failed to create buy ticket transaction');
   }
 }
