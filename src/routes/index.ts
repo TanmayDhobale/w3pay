@@ -12,6 +12,7 @@ router.use('/transactions', authMiddleware, transactionRoutes);
 router.use('/contributors', authMiddleware, contributorRoutes);
 router.use('/sale-stages', authMiddleware, saleStageRoutes);
 router.use('/purchase', authMiddleware, purchaseRoutes);
+router.use('/blink', authMiddleware, purchaseRoutes);
 
 router.post('/webhook', async (req, res) => {
   try {
