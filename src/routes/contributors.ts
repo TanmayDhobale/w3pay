@@ -10,12 +10,12 @@ router.get('/', async (req: express.Request<{ pubkey: string }, {}, {}, { page?:
     const page = parseInt(req.query.page || '1');
     const limit = parseInt(req.query.limit || '10');
 
-    const contributors = await Contributor.find({ customerPubkey: pubkey })
+    const contributors = await Contributor.find({ customerPubkeys: pubkey })
       .skip((page - 1) * limit)
       .limit(limit)
       .sort({ lastTransactionDate: -1 });
 
-    const total = await Contributor.countDocuments({ customerPubkey: pubkey });
+    const total = await Contributor.countDocuments({ customerPubkeys: pubkey });
 
     res.json({
       contributors,

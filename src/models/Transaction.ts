@@ -24,4 +24,6 @@ const TransactionSchema = new mongoose.Schema({
   lastUpdated: { type: Date, default: Date.now }
 });
 
+TransactionSchema.index({ customerPubkey: 1, timestamp: -1 });
+
 export default mongoose.model('Transaction', TransactionSchema);

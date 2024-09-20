@@ -1,41 +1,14 @@
-export class Cache {
-    private store: Map<string, { value: any; expiry: number }>;
-  
-    constructor() {
-      this.store = new Map();
-    }
-  
-    set(key: string, value: any, expiry: number) {
-      this.store.set(key, { value, expiry });
-    }
-  
-    get(key: string) {
-      return this.store.get(key);
-    } 
+import { createClient } from 'redis';
+import { promisify } from 'util';
 
-    delete(key: string) {
-        this.store.delete(key);
-    }
+const client = createClient({
+  url: process.env.REDIS_URL
+});
 
-    clear() {
-        this.store.clear();
-    }
+client.on('error', (err: Error) => console.log('Redis Client Error', err));
 
-    has(key: string) {
-        return this.store.has(key);
-    }
-
-    size() {
-        return this.store.size;
-    }
-
-    keys() {
-        return this.store.keys();
-    }
-
-    values() {
-        return this.store.values();
-    }
-    
-
-  }
+export const cache = {
+  get: promisify(client.get).bind(client),
+  set: promisify(client.set).bind(client),
+  setex: promisify(client.setex).bind(client),
+};

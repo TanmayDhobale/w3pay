@@ -24,7 +24,7 @@ export const transactionSchema = Joi.object({
 });
 
 export const contributorSchema = Joi.object({
-  customerPubkey: Joi.string().custom((value, helpers) => {
+  publicKey: Joi.string().custom((value, helpers) => {
     try {
       new PublicKey(value);
       return value;
@@ -32,6 +32,14 @@ export const contributorSchema = Joi.object({
       return helpers.error('any.invalid');
     }
   }).required(),
+  customerPubkeys: Joi.array().items(Joi.string().custom((value, helpers) => {
+    try {
+      new PublicKey(value);
+      return value;
+    } catch (error) {
+      return helpers.error('any.invalid');
+    }
+  })).required(),
   numberOfTransactions: Joi.number().integer().min(0).required(),
   tokensPurchased: Joi.number().min(0).required(),
   lastTransactionDate: Joi.date().iso().required(),

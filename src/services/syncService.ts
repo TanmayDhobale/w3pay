@@ -73,7 +73,8 @@ async function processTransaction(transaction: any, program: Program) {
         );
 
         const contributorData = {
-          customerPubkey: buyer.toString(),
+          publicKey: buyer.toString(),
+          customerPubkey: [buyer.toString()], 
           numberOfTransactions: 1,
           tokensPurchased: amount.toNumber(),
           lastTransactionDate: new Date(timestamp),
@@ -86,8 +87,9 @@ async function processTransaction(transaction: any, program: Program) {
         }
 
         await Contributor.findOneAndUpdate(
-          { customerPubkey: buyer.toString() },
+          { publicKey: buyer.toString() },
           {
+            $addToSet: { customerPubkey: buyer.toString() }, 
             $inc: { 
               numberOfTransactions: 1,
               tokensPurchased: amount.toNumber()
@@ -98,6 +100,7 @@ async function processTransaction(transaction: any, program: Program) {
           { upsert: true, new: true }
         );
       }
+
     }
   }
 }
