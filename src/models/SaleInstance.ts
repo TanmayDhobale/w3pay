@@ -3,12 +3,14 @@ const mockDatabase: SaleInstance = {
   microcent_per_allocation: 1000000, // 10 cents
   microcent_price_step: 100000, // 1 cent
   hours_per_increase: 24,
+  benefactor: "somePubkey"
 };
 
 export interface SaleInstance {
   microcent_per_allocation: number;
   microcent_price_step: number;
   hours_per_increase: number;
+  benefactor: string;
 }
 
 export const SaleInstance = {

@@ -4,9 +4,10 @@ import { AppError } from '../utils/errorHandler';
 
 const router = express.Router({ mergeParams: true });
 
-router.get('/', async (req, res, next) => {
+router.get('/', async (req:  express.Request<{ pubkey: string }>, res, next) => {
   try {
-    const saleStages = await SaleStage.find().sort({ start: 1 });
+    const { pubkey } = req.params;
+    const saleStages = await SaleStage.find({customer: pubkey}).sort({ start: 1 });
     res.json(saleStages);
   } catch (error) {
     next(new AppError('Error fetching sale stages', 500));

@@ -8,12 +8,12 @@ router.get('/', async (req: express.Request<{ pubkey: string }>, res, next) => {
   try {
     const { pubkey } = req.params;
     const { page = 1, limit = 10 } = req.query;
-    const transactions = await Transaction.find({ buyerAddress: pubkey })
+    const transactions = await Transaction.find({ customer: pubkey })
       .limit(Number(limit))
       .skip((Number(page) - 1) * Number(limit))
       .sort({ timestamp: -1 });
 
-    const total = await Transaction.countDocuments({ buyerAddress: pubkey });
+    const total = await Transaction.countDocuments({ customer: pubkey });
 
     res.json({
       transactions,
@@ -25,10 +25,10 @@ router.get('/', async (req: express.Request<{ pubkey: string }>, res, next) => {
   }
 });
 
-router.get('/:pubkey/:id', async (req, res, next) => {
+router.get('/:id', async (req: express.Request<{ pubkey: string, id: string }>, res, next) => {
   try {
     const { pubkey, id } = req.params;
-    const transaction = await Transaction.findOne({ transactionId: id, buyerAddress: pubkey });
+    const transaction = await Transaction.findOne({ transactionId: id, customer: pubkey });
     if (!transaction) {
       throw new AppError('Transaction not found', 404);
     }

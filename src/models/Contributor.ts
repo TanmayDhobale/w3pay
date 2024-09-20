@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 
 const ContributorSchema = new mongoose.Schema({
-  publicKey: { type: String, required: true, unique: true },
+  publicKey: { type: String, required: true },
+  customer: { type: String, required: true },
   numberOfTransactions: { type: Number, default: 0 },
   totalUsdAmount: { type: Number, default: 0 },
   lastTransactionDate: Date,

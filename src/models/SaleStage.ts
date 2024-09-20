@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const SaleStageSchema = new mongoose.Schema({
   start: { type: Number, required: true },
+  customer: { type: String, required: true },
   end: { type: Number, required: true },
   availableAmount: { type: Number, required: true },
   soldAmount: { type: Number, required: true },
