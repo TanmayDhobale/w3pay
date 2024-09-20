@@ -10,7 +10,7 @@ const router = express.Router();
 router.post('/', async (req, res, next) => {
   try {
     const { amount } = req.body;
-    const buyerPublicKey = req.body.buyer || req.query.buyer; // Allow for query param or body
+    const buyerPublicKey = req.body.buyer || req.query.buyer;
     const authorityPublicKey = process.env.AUTHORITY_PUBLIC_KEY;
     const benefactorPublicKey = process.env.BENEFACTOR_PUBLIC_KEY;
 
@@ -107,7 +107,7 @@ async function fetchCurrentPrice(): Promise<string> {
 
   try {
     const tokenAccount = await program.account.tokenAccount.fetch(tokenAccountPubkey);
-    const price = new BN(tokenAccount.price).divn(1e9).toNumber(); // Assuming price is stored in lamports
+    const price = new BN(tokenAccount.price).divn(1e9).toNumber(); 
     return price.toFixed(9);
   } catch (error) {
     console.error('Error fetching current price:', error);
