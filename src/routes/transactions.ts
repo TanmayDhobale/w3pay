@@ -4,31 +4,34 @@ import { AppError } from '../utils/errorHandler';
 
 const router = express.Router({ mergeParams: true });
 
-router.get('/', async (req: express.Request<{ pubkey: string }>, res, next) => {
+router.get('/', async (req: express.Request<{ pubkey: string }, {}, {}, { page?: string, limit?: string }>, res, next) => {
   try {
     const { pubkey } = req.params;
-    const { page = 1, limit = 10 } = req.query;
-    const transactions = await Transaction.find({ buyerAddress: pubkey })
-      .limit(Number(limit))
-      .skip((Number(page) - 1) * Number(limit))
+    const page = parseInt(req.query.page || '1');
+    const limit = parseInt(req.query.limit || '10');
+
+    const transactions = await Transaction.find({ customerPubkey: pubkey })
+      .skip((page - 1) * limit)
+      .limit(limit)
       .sort({ timestamp: -1 });
 
-    const total = await Transaction.countDocuments({ buyerAddress: pubkey });
+    const total = await Transaction.countDocuments({ customerPubkey: pubkey });
 
     res.json({
       transactions,
-      totalPages: Math.ceil(total / Number(limit)),
-      currentPage: Number(page)
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalTransactions: total
     });
   } catch (error) {
     next(new AppError('Error fetching transactions', 500));
   }
 });
 
-router.get('/:pubkey/:id', async (req, res, next) => {
+router.get('/:id', async (req: express.Request<{ pubkey: string; id: string }>, res, next) => {
   try {
     const { pubkey, id } = req.params;
-    const transaction = await Transaction.findOne({ transactionId: id, buyerAddress: pubkey });
+    const transaction = await Transaction.findOne({ transactionId: id, customerPubkey: pubkey });
     if (!transaction) {
       throw new AppError('Transaction not found', 404);
     }

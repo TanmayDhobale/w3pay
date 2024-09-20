@@ -1,44 +1,30 @@
 import express from 'express';
 import Contributor from '../models/Contributor';
-import Transaction from '../models/Transaction';
 import { AppError } from '../utils/errorHandler';
 
 const router = express.Router({ mergeParams: true });
 
-router.get('/', async (req: express.Request<{ pubkey: string }>, res, next) => {
+router.get('/', async (req: express.Request<{ pubkey: string }, {}, {}, { page?: string, limit?: string }>, res, next) => {
   try {
     const { pubkey } = req.params;
-    const contributor = await Contributor.findOne({ publicKey: pubkey });
-    if (!contributor) {
-      throw new AppError('Contributor not found', 404);
-    }
-    res.json(contributor);
+    const page = parseInt(req.query.page || '1');
+    const limit = parseInt(req.query.limit || '10');
+
+    const contributors = await Contributor.find({ customerPubkey: pubkey })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ lastTransactionDate: -1 });
+
+    const total = await Contributor.countDocuments({ customerPubkey: pubkey });
+
+    res.json({
+      contributors,
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalContributors: total
+    });
   } catch (error) {
-    next(new AppError('Error fetching contributor', 500));
-  }
-});
-
-router.get('/details', async (req: express.Request<{ pubkey: string }>, res, next) => {
-  try {
-    const { pubkey } = req.params;
-    const contributor = await Contributor.findOne({ publicKey: pubkey });
-
-    if (!contributor) {
-      throw new AppError('Contributor not found', 404);
-    }
-
-    const recentTransactions = await Transaction.find({ buyerAddress: pubkey })
-      .sort({ timestamp: -1 })
-      .limit(5);
-
-    const response = {
-      ...contributor.toObject(),
-      recentTransactions
-    };
-
-    res.json(response);
-  } catch (error) {
-    next(error);
+    next(new AppError('Error fetching contributors', 500));
   }
 });
 

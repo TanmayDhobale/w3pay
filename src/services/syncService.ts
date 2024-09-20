@@ -4,6 +4,19 @@ import Transaction from '../models/Transaction';
 import Contributor from '../models/Contributor';
 import SaleStage from '../models/SaleStage';
 import idl from '../idl.json';
+import { getEnhancedTransactions } from './heliusService';
+import { validateTransaction, validateContributor } from '../utils/validation';
+
+
+async function getSaleStages(program: Program): Promise<any[]> {
+  const saleStages = await program.account.saleStage.all();
+  console.log(saleStages);
+
+  return saleStages.map(stage => ({
+    id: stage.publicKey.toString(),
+    ...stage.account
+  }));
+}
 
 const SYNC_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
@@ -13,65 +26,93 @@ export async function startSyncService() {
   const program = new Program(idl as any, new PublicKey(process.env.PROGRAM_ID as string), provider);
 
   setInterval(async () => {
-    await syncTransactions(program);
-    await syncContributors(program);
+    await syncTransactions(connection, program);
     await syncSaleStages(program);
   }, SYNC_INTERVAL);
 }
 
-async function syncTransactions(program: Program) {
-  const tickets = await program.account.ticket.all();
-  for (const ticket of tickets) {
-    await Transaction.findOneAndUpdate(
-      { transactionId: ticket.publicKey.toString() },
-      {
-        buyerAddress: ticket.account.buyer.toString(),
-        recipientAddress: ticket.account.saleInstance.toString(),
-        timestamp: ticket.account.lastUpdated.toNumber(),
-        tokenAmount: ticket.account.unspent.toNumber() + ticket.account.spent.toNumber(),
-        lastUpdated: new Date()
-      },
-      { upsert: true, new: true }
-    );
+async function syncTransactions(connection: Connection, program: Program) {
+  try {
+    const transactionsResponse = await getEnhancedTransactions(program.programId.toString());
+    const transactions = Array.isArray(transactionsResponse) ? transactionsResponse : transactionsResponse.items || [];
+    for (const tx of transactions) {
+      if (tx.type === 'PROGRAM_CALL' && tx.programId === program.programId.toString()) {
+        await processTransaction(tx, program);
+      }
+    }
+  } catch (error) {
+    console.error('Error syncing transactions:', error);
   }
 }
 
-async function syncContributors(program: Program) {
-  const tickets = await program.account.ticket.all();
-  for (const ticket of tickets) {
-    const publicKey = ticket.account.buyer.toString();
-    const tokenAmount = ticket.account.unspent.toNumber() + ticket.account.spent.toNumber();
-    
-    await Contributor.findOneAndUpdate(
-      { publicKey },
-      {
-        $inc: { 
+async function processTransaction(transaction: any, program: Program) {
+  const { signature, timestamp, instructions } = transaction;
+  for (const ix of instructions) {
+    if (ix.programId === program.programId.toString()) {
+      const decodedIx = program.instruction.decode(ix.data, ix.programId) as any;
+      if (decodedIx && decodedIx.name === 'buyTicket') {
+        const { buyer, amount } = decodedIx.args;
+        const transactionData = {
+          transactionId: signature,
+          customerPubkey: buyer.toString(),
+          buyerAddress: buyer.toString(),
+          timestamp: timestamp,
+          tokenAmount: amount.toNumber(),
+        };
+
+        const { error: transactionError } = validateTransaction(transactionData);
+        if (transactionError) {
+          console.error('Invalid transaction data:', transactionError);
+          return;
+        }
+
+        await Transaction.findOneAndUpdate(
+          { transactionId: signature },
+          transactionData,
+          { upsert: true, new: true }
+        );
+
+        const contributorData = {
+          customerPubkey: buyer.toString(),
           numberOfTransactions: 1,
-          tokensPurchased: tokenAmount
-        },
-        lastTransactionDate: new Date(ticket.account.lastUpdated.toNumber() * 1000),
-        lastUpdated: new Date()
-      },
-      { upsert: true, new: true }
-    );
+          tokensPurchased: amount.toNumber(),
+          lastTransactionDate: new Date(timestamp),
+        };
+
+        const { error: contributorError } = validateContributor(contributorData);
+        if (contributorError) {
+          console.error('Invalid contributor data:', contributorError);
+          return;
+        }
+
+        await Contributor.findOneAndUpdate(
+          { customerPubkey: buyer.toString() },
+          {
+            $inc: { 
+              numberOfTransactions: 1,
+              tokensPurchased: amount.toNumber()
+            },
+            lastTransactionDate: new Date(timestamp),
+            lastUpdated: new Date()
+          },
+          { upsert: true, new: true }
+        );
+      }
+    }
   }
 }
 
 async function syncSaleStages(program: Program) {
-  const saleStages = await program.account.saleStages.all();
-  for (const stage of saleStages) {
-    await SaleStage.findOneAndUpdate(
-      { start: stage.account.start.toNumber() },
-      {
-        end: stage.account.end.toNumber(),
-        availableAmount: stage.account.availableAmount.toString(),
-        soldAmount: stage.account.soldAmount.toString(),
-        vestedSale: stage.account.vestedSale,
-        priceStrategy: stage.account.priceStrategy,
-        whitelistStrategy: stage.account.whitelistStrategy,
-        lastUpdated: new Date()
-      },
-      { upsert: true, new: true }
-    );
+  try {
+    const saleStages = await getSaleStages(program);
+    for (const stage of saleStages) {
+      await SaleStage.findOneAndUpdate(
+        { id: stage.id },
+        stage,
+        { upsert: true, new: true }
+      );
+    }
+  } catch (error) {
+    console.error('Error syncing sale stages:', error);
   }
 }

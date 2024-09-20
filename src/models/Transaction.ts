@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const TransactionSchema = new mongoose.Schema({
   transactionId: { type: String, required: true, unique: true },
+  customerPubkey: { type: String, required: true, index: true },
   buyerAddress: { type: String, required: true },
   recipientAddress: { type: String, required: true },
   timestamp: { type: Number, required: true },
