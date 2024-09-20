@@ -2,7 +2,7 @@ import express from 'express';
 import SaleStage from '../models/SaleStage';
 import { AppError } from '../utils/errorHandler';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router.get('/', async (req, res, next) => {
   try {
@@ -24,7 +24,6 @@ router.get('/:id', async (req, res, next) => {
     next(error);
   }
 });
-
 
 router.get('/aggregated', async (req, res, next) => {
   try {
