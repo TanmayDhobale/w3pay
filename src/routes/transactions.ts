@@ -1,6 +1,6 @@
 import express from 'express';
-import Transaction from '../models/Transaction';
-import { AppError } from '../utils/errorHandler';
+import Transaction from '../models/Transaction.js';
+import { AppError } from '../utils/errorHandler.js';
 
 const router = express.Router({ mergeParams: true });
 

@@ -1,10 +1,10 @@
 import express from 'express';
-import transactionRoutes from './transactions';
-import contributorRoutes from './contributors';
-import saleStageRoutes from './saleStages';
-import purchaseRoutes from './purchase';
-import { authMiddleware } from '../middleware/auth';
-import { handleTransactionCreated, handleContributorUpdated, handleSaleStageChanged } from '../handlers/webhookHandlers';
+import transactionRoutes from './transactions.js';
+import contributorRoutes from './contributors.js';
+import saleStageRoutes from './saleStages.js';
+import purchaseRoutes from './purchase.js';
+import { authMiddleware } from '../middleware/auth.js';
+import { handleTransactionCreated, handleContributorUpdated, handleSaleStageChanged } from '../handlers/webhookHandlers.js';
 
 const router = express.Router();
 const customerRouter = express.Router({ mergeParams: true });

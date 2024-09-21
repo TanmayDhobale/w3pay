@@ -1,8 +1,8 @@
 import express from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
-import SaleStage from '../models/SaleStage';
-import { AppError } from '../utils/errorHandler';
-import { cache } from '../utils/cache';
+import SaleStage from '../models/SaleStage.js';
+import { AppError } from '../utils/errorHandler.js';
+import { cache } from '../utils/cache.js';
 
 const router = express.Router({ mergeParams: true });
 

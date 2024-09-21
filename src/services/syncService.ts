@@ -1,12 +1,13 @@
 import { Connection, PublicKey } from '@solana/web3.js';
 import { Program, AnchorProvider } from '@project-serum/anchor';
-import Transaction from '../models/Transaction';
-import Contributor from '../models/Contributor';
-import SaleStage from '../models/SaleStage';
-import idl from '../idl.json';
-import { getEnhancedTransactions } from './heliusService';
-import { validateTransaction, validateContributor } from '../utils/validation';
+import Transaction from '../models/Transaction.js';
+import Contributor from '../models/Contributor.js';
+import SaleStage from '../models/SaleStage.js';
+import { getEnhancedTransactions } from './heliusService.js';
+import { validateTransaction, validateContributor } from '../utils/validation.js';
+import { importJSON } from '../utils/jsonImport.js';
 
+const idl = importJSON('src/idl.json');
 
 async function getSaleStages(program: Program): Promise<any[]> {
   const saleStages = await program.account.saleStage.all();

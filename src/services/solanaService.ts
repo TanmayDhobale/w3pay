@@ -1,8 +1,13 @@
-import { Connection, PublicKey, Transaction, Keypair } from '@solana/web3.js';
-import { Program, AnchorProvider, BN, web3 as anchorWeb3, Wallet } from '@project-serum/anchor';
-import idl from '../idl.json';
+import pkg from '@project-serum/anchor';
+const { AnchorProvider, BN, web3: anchorWeb3, Wallet } = pkg;
+import { Program } from '@project-serum/anchor'; // Add this import
 
-let program: Program;
+import { Connection, PublicKey, Transaction, Keypair } from '@solana/web3.js';
+import { importJSON } from '../utils/jsonImport.js';
+
+const idl = importJSON('src/idl.json');
+
+let program: Program<any>; 
 
 export function initializeSolanaProgram() {
   const connection = new Connection(process.env.SOLANA_RPC_URL as string);

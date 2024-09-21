@@ -1,6 +1,6 @@
-import Decimal from 'decimal.js';
-import SaleStage from '../models/SaleStage';
-import { SaleInstance } from '../models/SaleInstance';
+import { Decimal } from 'decimal.js';
+import SaleStage from '../models/SaleStage.js';
+import { SaleInstance } from '../models/SaleInstance.js';
 
 enum PriceStrategyType {
   Static = 'Static',

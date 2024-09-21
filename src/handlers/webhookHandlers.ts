@@ -1,6 +1,6 @@
 import { MongoClient, ObjectId } from 'mongodb';
-import { cache } from '../utils/cache';
-import { calculateTokenPrice } from '../services/priceService';
+import { cache } from '../utils/cache.js';
+import { calculateTokenPrice } from '../services/priceService.js';
 
 const mongoClient = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
 const db = mongoClient.db('your_database_name');

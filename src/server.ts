@@ -4,11 +4,14 @@ dotenv.config();
 import express from 'express';
 import routes from './routes/index.js';
 import { connectToDatabase } from './config/database.js';
-import { errorHandler } from './utils/errorHandler';
-import logger from './utils/logger';
-import { startSyncService } from './services/syncService';
-import { initializeSolanaProgram } from './services/solanaService';
-import TestModel from './models/TestModel';
+import { errorHandler } from './utils/errorHandler.js';
+import logger from './utils/logger.js';
+import { startSyncService } from './services/syncService.js';
+import { initializeSolanaProgram } from './services/solanaService.js';
+import TestModel from './models/TestModel.js';
+import { importJSON } from './utils/jsonImport.js';
+
+const idl = importJSON('src/idl.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

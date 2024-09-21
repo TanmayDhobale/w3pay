@@ -1,6 +1,6 @@
 import express from 'express';
-import Contributor from '../models/Contributor';
-import { AppError } from '../utils/errorHandler';
+import Contributor from '../models/Contributor.js';
+import { AppError } from '../utils/errorHandler.js';
 
 const router = express.Router({ mergeParams: true });
 

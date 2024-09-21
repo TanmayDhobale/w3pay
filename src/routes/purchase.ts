@@ -1,35 +1,34 @@
 import express from 'express';
 import { PublicKey } from '@solana/web3.js';
-import { buyTicket, getProgram } from '../services/solanaService';
-import { AppError } from '../utils/errorHandler';
+import { buyTicket, getProgram } from '../services/solanaService.js';
+import { AppError } from '../utils/errorHandler.js';
 import { AnchorError } from '@project-serum/anchor';
-import { BN } from '@project-serum/anchor';
+import anchorPkg from '@project-serum/anchor';
+import BN from 'bn.js';  
 
-function isBNCompatible(value: unknown): value is string | number | Buffer | number[] | Uint8Array | BN {
-  return typeof value === 'string' 
+
+type BNType = BN;  
+
+function isBNCompatible(value: unknown): value is string | number | Buffer | number[] | Uint8Array | BNType {
+  return (
+    typeof value === 'string' 
     || typeof value === 'number' 
     || Buffer.isBuffer(value)
     || Array.isArray(value) 
     || value instanceof Uint8Array 
-    || BN.isBN(value);
+    || value instanceof BN
+  );
 }
 
-function safeBN(value: unknown): BN {
+function safeBN(value: unknown): BNType {
   if (isBNCompatible(value)) {
     return new BN(value);
   }
-  throw new Error(`Invalid value for BN: ${value}`);
+  throw new Error('Invalid value for BN');
 }
 
-export function toBN(value: unknown): BN {
-  if (typeof value === 'string' || typeof value === 'number') {
-    return new BN(value);
-  } else if (value instanceof BN) {
-    return value;
-  } else if (Array.isArray(value) || value instanceof Uint8Array || value instanceof Buffer) {
-    return new BN(value);
-  }
-  throw new Error('Invalid type for BN conversion');
+export function toBN(value: unknown): BNType {
+  return safeBN(value);
 }
 
 const router = express.Router();
