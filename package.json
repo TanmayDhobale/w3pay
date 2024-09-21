@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node --experimental-specifier-resolution=node dist/server.js",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "build": "tsc && npm run copy-files",
+    "build": "npm install --save-dev @types/bn.js @types/express @types/express-serve-static-core && tsc && npm run copy-files",
     "copy-files": "copyfiles -u 1 \"src/*.json\" dist/",
     "test": "jest"
   },
@@ -27,7 +27,7 @@
   "devDependencies": {
     "@types/bn.js": "^5.1.6",
     "@types/express": "^4.17.21",
-    "@types/express-serve-static-core": "^4.19.5",
+    "@types/express-serve-static-core": "^4.17.5",
     "@types/node": "^16.18.108",
     "copyfiles": "^2.4.1",
     "nodemon": "^2.0.20",
