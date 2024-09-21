@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { PublicKey } from '@solana/web3.js';
 import { buyTicket, getProgram } from '../services/solanaService.js';
 import { AppError } from '../utils/errorHandler.js';
 import { AnchorError } from '@project-serum/anchor';
 import anchorPkg from '@project-serum/anchor';
 import BN from 'bn.js';  
-import { Request, Response, NextFunction } from 'express';
+
 
 type BNType = BN;  
 
@@ -64,7 +64,7 @@ router.post('/purchase', async (req: Request, res: Response, next: NextFunction)
   }
 });
 
-router.get('/ticket/:publicKey', async (req, res, next) => {
+router.get('/ticket/:publicKey', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const ticketPublicKey = new PublicKey(req.params.publicKey);
     const program = getProgram();
@@ -76,7 +76,7 @@ router.get('/ticket/:publicKey', async (req, res, next) => {
 });
 
 // Add this new route
-router.get('/blink-data', async (req, res, next) => {
+router.get('/blink-data', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const currentPrice = await fetchCurrentPrice();
     const marketCap = await fetchMarketCap();
