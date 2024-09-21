@@ -3,7 +3,23 @@ import { PublicKey } from '@solana/web3.js';
 import { buyTicket, getProgram } from '../services/solanaService';
 import { AppError } from '../utils/errorHandler';
 import { AnchorError } from '@project-serum/anchor';
-import { BN } from '@project-serum/anchor';
+import BN from 'bn.js';
+
+function isBNCompatible(value: unknown): value is string | number | Buffer | number[] | Uint8Array | BN {
+  return typeof value === 'string' 
+    || typeof value === 'number' 
+    || value instanceof Buffer 
+    || Array.isArray(value) 
+    || value instanceof Uint8Array 
+    || value instanceof BN;
+}
+
+function safeBN(value: unknown): BN {
+  if (isBNCompatible(value)) {
+    return new BN(value);
+  }
+  throw new Error(`Invalid value for BN: ${value}`);
+}
 
 export function toBN(value: unknown): BN {
   if (typeof value === 'string' || typeof value === 'number') {
