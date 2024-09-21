@@ -5,6 +5,17 @@ import { AppError } from '../utils/errorHandler';
 import { AnchorError } from '@project-serum/anchor';
 import { BN } from '@project-serum/anchor';
 
+export function toBN(value: unknown): BN {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return new BN(value);
+  } else if (value instanceof BN) {
+    return value;
+  } else if (Array.isArray(value) || value instanceof Uint8Array || value instanceof Buffer) {
+    return new BN(value);
+  }
+  throw new Error('Invalid type for BN conversion');
+}
+
 const router = express.Router();
 
 router.post('/', async (req, res, next) => {
@@ -145,13 +156,6 @@ async function fetch24hChange(): Promise<string> {
     console.error('Error fetching 24h change:', error);
     return '0.00%';
   }
-}
-
-function toBN(value: unknown): BN {
-  if (typeof value === 'string' || typeof value === 'number') {
-    return new BN(value);
-  }
-  throw new Error('Invalid type for BN conversion');
 }
 
 export default router;
