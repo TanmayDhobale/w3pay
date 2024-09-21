@@ -3,7 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import routes from './routes/index.js';
-import { connectToDatabase } from './config/database';
+import { connectToDatabase } from './config/database.js';
 import { errorHandler } from './utils/errorHandler';
 import logger from './utils/logger';
 import { startSyncService } from './services/syncService';
