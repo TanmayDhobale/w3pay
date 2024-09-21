@@ -1,4 +1,5 @@
 import express from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import SaleStage from '../models/SaleStage.js';
 import { AppError } from '../utils/errorHandler.js';

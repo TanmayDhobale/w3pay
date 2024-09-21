@@ -5,7 +5,7 @@ import { AppError } from '../utils/errorHandler.js';
 import { AnchorError } from '@project-serum/anchor';
 import anchorPkg from '@project-serum/anchor';
 import BN from 'bn.js';  
-
+import { Request, Response, NextFunction } from 'express';
 
 type BNType = BN;  
 
@@ -33,7 +33,7 @@ export function toBN(value: unknown): BNType {
 
 const router = express.Router();
 
-router.post('/', async (req, res, next) => {
+router.post('/purchase', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { amount } = req.body;
     const buyerPublicKey = req.body.buyer || req.query.buyer;
