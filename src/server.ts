@@ -1,3 +1,5 @@
+/// <reference path="./types/global.d.ts" />
+
 import dotenv from 'dotenv';
 dotenv.config();
 

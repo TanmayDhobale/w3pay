@@ -9,9 +9,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
-    "typeRoots": ["./node_modules/@types"],
-    "types": ["bn.js", "express", "express-serve-static-core"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["node", "express", "express-serve-static-core", "bn.js"],
+    "resolveJsonModule": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["node_modules"]
 }
