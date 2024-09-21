@@ -3,15 +3,15 @@ import { PublicKey } from '@solana/web3.js';
 import { buyTicket, getProgram } from '../services/solanaService';
 import { AppError } from '../utils/errorHandler';
 import { AnchorError } from '@project-serum/anchor';
-import BN from 'bn.js';
+import { BN } from '@project-serum/anchor';
 
 function isBNCompatible(value: unknown): value is string | number | Buffer | number[] | Uint8Array | BN {
   return typeof value === 'string' 
     || typeof value === 'number' 
-    || value instanceof Buffer 
+    || Buffer.isBuffer(value)
     || Array.isArray(value) 
     || value instanceof Uint8Array 
-    || value instanceof BN;
+    || BN.isBN(value);
 }
 
 function safeBN(value: unknown): BN {
@@ -134,7 +134,8 @@ async function fetchCurrentPrice(): Promise<string> {
 
   try {
     const tokenAccount = await program.account.tokenAccount.fetch(tokenAccountPubkey);
-    const price = new BN(tokenAccount.price).divn(1e9).toNumber(); 
+    const currentPrice = new BN(tokenAccount.price as number);
+    const price = currentPrice.divn(1e9).toNumber(); 
     return price.toFixed(9);
   } catch (error) {
     console.error('Error fetching current price:', error);
@@ -148,8 +149,8 @@ async function fetchMarketCap(): Promise<string> {
 
   try {
     const tokenAccount = await program.account.tokenAccount.fetch(tokenAccountPubkey);
-    const totalSupply = new BN(tokenAccount.totalSupply);
-    const price = new BN(tokenAccount.price);
+    const totalSupply = new BN(tokenAccount.totalSupply as number);
+    const price = new BN(tokenAccount.price as number);
     const marketCap = totalSupply.mul(price).divn(1e9).toNumber(); 
     return marketCap.toFixed(2);
   } catch (error) {
@@ -160,12 +161,12 @@ async function fetchMarketCap(): Promise<string> {
 
 async function fetch24hChange(): Promise<string> {
   const program = getProgram();
-    const tokenAccountPubkey = new PublicKey(process.env.TOKEN_ACCOUNT_PUBKEY || '');
+  const tokenAccountPubkey = new PublicKey(process.env.TOKEN_ACCOUNT_PUBKEY || '');
 
   try {
     const tokenAccount = await program.account.tokenAccount.fetch(tokenAccountPubkey);
-    const currentPrice = new BN(tokenAccount.price);
-    const previousPrice = new BN(tokenAccount.previousDayPrice);
+    const currentPrice = new BN(tokenAccount.price as number);
+    const previousPrice = new BN(tokenAccount.previousDayPrice as number);
     const change = currentPrice.sub(previousPrice).muln(100).div(previousPrice);
     return `${change.toNumber().toFixed(2)}%`;
   } catch (error) {
