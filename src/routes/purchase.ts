@@ -147,4 +147,11 @@ async function fetch24hChange(): Promise<string> {
   }
 }
 
+function toBN(value: unknown): BN {
+  if (typeof value === 'string' || typeof value === 'number') {
+    return new BN(value);
+  }
+  throw new Error('Invalid type for BN conversion');
+}
+
 export default router;
