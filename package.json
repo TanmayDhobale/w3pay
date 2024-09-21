@@ -4,7 +4,7 @@
   "description": "W3Pay backend service",
   "main": "src/server.ts",
   "scripts": {
-    "start": "PROGRAM_ID=your_actual_program_id_here ts-node src/server.ts",
+    "start": "node dist/server.js",
     "dev": "nodemon --exec ts-node src/server.ts",
     "build": "tsc",
     "test": "jest"
@@ -29,5 +29,6 @@
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.5"
-  }
+  },
+  "type": "module"
 }
