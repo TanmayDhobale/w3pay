@@ -40,4 +40,6 @@ router.post('/webhook', async (req, res) => {
   }
 });
 
+router.use('/customer/:pubkey', authMiddleware, saleStageRoutes);
+
 export default router;

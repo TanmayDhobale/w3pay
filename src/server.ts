@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+console.log('API_KEY from env:', process.env.API_KEY);
+
 import express from 'express';
 import routes from './routes/index.js';
 import { connectToDatabase } from './config/database.js';
