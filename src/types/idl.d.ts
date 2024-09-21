@@ -1,4 +1,4 @@
-declare module '../idl.json' {
+declare module 'idl' {
   const value: any;
-  export default value;
+  export default value;   
 }
