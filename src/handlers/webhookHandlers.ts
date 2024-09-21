@@ -1,6 +1,7 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import { cache } from '../utils/cache.js';
 import { calculateTokenPrice } from '../services/priceService.js';
+import Transaction from '../models/Transaction.js';
 
 const mongoClient = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
 const db = mongoClient.db('your_database_name');
@@ -8,7 +9,7 @@ const db = mongoClient.db('your_database_name');
 const CACHE_TTL = 5 * 60 * 1000 ; 
 
 async function updateCache(key: string, data: any) {
-  await cache.setEx(key, CACHE_TTL / 1000, JSON.stringify(data));
+  await cache.set(key, JSON.stringify(data), CACHE_TTL / 1000);
 }
 
 async function getFromCacheOrUpdate(key: string, updateFn: () => Promise<any>) {
@@ -23,25 +24,17 @@ async function getFromCacheOrUpdate(key: string, updateFn: () => Promise<any>) {
 }
 
 export async function handleTransactionCreated(data: any) {
-  const { id, tokenAmount, userId } = data;
-  
   try {
-    const usdAmount = await calculateTokenPrice(tokenAmount);
+    const transaction = new Transaction(data);
+    await transaction.save();
     
-    const transaction = await db.collection('transactions').insertOne({
-      _id: new ObjectId(id),
-      tokenAmount,
-      usdAmount,
-      userId,
-      createdAt: new Date()
-    });
+    // Remove or comment out these lines
+    // const key = `transaction:${data.id}`;
+    // await cache.set(key, JSON.stringify(data), CACHE_TTL / 1000);
     
-    const insertedTransaction = await db.collection('transactions').findOne({ _id: transaction.insertedId });
-    await updateCache(`transaction:${id}`, insertedTransaction);
-    console.log('Transaction created:', id);
+    console.log('Transaction created and saved:', transaction);
   } catch (error) {
-    console.error('Error creating transaction:', error);
-    // Handle the error appropriately (e.g., retry logic, alert system, etc.)
+    console.error('Error handling transaction creation:', error);
   }
 }
 

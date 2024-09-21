@@ -1,14 +1,9 @@
-import { createClient } from 'redis';
-import { promisify } from 'util';
-
-const client = createClient({
-  url: process.env.REDIS_URL
-});
-
-client.on('error', (err: Error) => console.log('Redis Client Error', err));
-
 export const cache = {
-  get: promisify(client.get).bind(client),
-  set: promisify(client.set).bind(client),
-  setEx: promisify(client.setEx).bind(client),
+  async get(key: string) {
+    // Implement your get logic here
+    return null;
+  },
+  async set(key: string, value: any, expiryInSeconds: number) {
+    // Implement your set logic here
+  },
 };

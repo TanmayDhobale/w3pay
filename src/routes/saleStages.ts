@@ -2,23 +2,17 @@ import express from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import SaleStage from '../models/SaleStage.js';
 import { AppError } from '../utils/errorHandler.js';
-import { cache } from '../utils/cache.js';
+import { cache } from '../utils/cache.js'; 
 
 const router = express.Router({ mergeParams: true });
 
 router.get('/', async (req: express.Request<{ customerPubkey?: string }>, res, next) => {
   try {
     const { customerPubkey } = req.params;
-    const cacheKey = `saleStages:${customerPubkey}`;
     
-    const cachedStages = await cache.get(cacheKey);
-    if (cachedStages) {
-      return res.json(cachedStages);
-    }
-
+    // Remove caching logic for now 
     const saleStages = await SaleStage.find({ customerPubkey }).sort({ start: 1 }).lean();
     
-    await cache.set(cacheKey, saleStages, 60); // Cache for 60 seconds
     res.json(saleStages);
   } catch (error) {
     next(new AppError('Error fetching sale stages', 500));

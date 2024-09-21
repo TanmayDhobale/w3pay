@@ -21,6 +21,10 @@ const PORT = process.env.PORT || 3000;
 connectToDatabase();
 initializeSolanaProgram();
 
+// Remove or comment out these lines
+// import Redis from 'ioredis';
+// const redis = new Redis(process.env.REDIS_URL);
+// ... any other Redis-related code
 
 app.get('/', (req, res) => {
   res.send('Hey, this is Web3 Pay');
@@ -32,7 +36,10 @@ app.use('/api', routes);
 
 app.use(errorHandler);
 
-startSyncService().catch(logger.error);
+startSyncService().catch((error) => {
+  console.error('Error starting sync service:', error);
+  logger.error('Error starting sync service:', error);
+});
 
 app.get('/test-db', async (req, res) => {
   try {
