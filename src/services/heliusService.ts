@@ -14,7 +14,6 @@ export async function getEnhancedTransactions(address: string, options?: any) {
     throw error;
   }
 }
-
 export async function getAssetsByOwner(ownerAddress: string, page: number = 1) {
   try {
     const assets = await helius.rpc.getAssetsByOwner({

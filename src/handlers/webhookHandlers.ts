@@ -1,21 +1,20 @@
 import { MongoClient, ObjectId } from 'mongodb';
-import { Cache } from '../utils/cache';
+import { cache } from '../utils/cache';
 import { calculateTokenPrice } from '../services/priceService';
 
 const mongoClient = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017');
 const db = mongoClient.db('your_database_name');
 
-const cache = new Cache();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes in milliseconds
+const CACHE_TTL = 5 * 60 * 1000 ; 
 
 async function updateCache(key: string, data: any) {
-  cache.set(key, data, Date.now() + CACHE_TTL);
+  await cache.setEx(key, CACHE_TTL / 1000, JSON.stringify(data));
 }
 
 async function getFromCacheOrUpdate(key: string, updateFn: () => Promise<any>) {
-  const cachedData = cache.get(key);
-  if (cachedData && cachedData.expiry > Date.now()) {
-    return cachedData.value;
+  const cachedData = await cache.get(key);
+  if (cachedData) {
+    return JSON.parse(cachedData);
   }
 
   const freshData = await updateFn();
