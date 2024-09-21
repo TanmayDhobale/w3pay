@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express from 'express';
-import routes from './routes';
+import routes from './routes/index.js';
 import { connectToDatabase } from './config/database';
 import { errorHandler } from './utils/errorHandler';
 import logger from './utils/logger';
