@@ -1,5 +1,4 @@
-import express from 'express';
-import { Request, Response, NextFunction } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import { ParamsDictionary } from 'express-serve-static-core';
 import SaleStage from '../models/SaleStage.js';
 import { AppError } from '../utils/errorHandler.js';
@@ -7,7 +6,7 @@ import { cache } from '../utils/cache.js';
 
 const router = express.Router({ mergeParams: true });
 
-router.get('/', async (req: express.Request<{ customerPubkey?: string }>, res, next) => {
+router.get('/', async (req: Request<{ customerPubkey?: string }>, res: Response, next: NextFunction) => {
   try {
     const { customerPubkey } = req.params;
     
