@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import transactionRoutes from './transactions.js';
 import contributorRoutes from './contributors.js';
 import saleStageRoutes from './saleStages.js';
@@ -15,7 +15,7 @@ router.use('/customer/:pubkey', authMiddleware, customerRouter);
 
 router.use('/purchase', authMiddleware, purchaseRoutes);
 router.use('/blink', authMiddleware, purchaseRoutes);
-router.post('/webhook', async (req, res) => {
+router.post('/webhook', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { event, data } = req.body;
 

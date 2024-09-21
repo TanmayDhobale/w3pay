@@ -9,7 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
-    "types": ["node"]
+    "types": ["node", "express", "express-serve-static-core", "bn.js"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"]
