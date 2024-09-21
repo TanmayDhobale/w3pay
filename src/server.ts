@@ -19,7 +19,13 @@ const PORT = process.env.PORT || 3000;
 connectToDatabase();
 initializeSolanaProgram();
 
+
+app.get('/', (req, res) => {
+  res.send('Hey, this is Web3 Pay');
+});
+
 app.use(express.json());
+
 app.use('/api', routes);
 
 app.use(errorHandler);
@@ -42,7 +48,7 @@ app.get('/health', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
 
 export {};
